@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pickle
 import tqdm as tqdm
+import matplotlib.pyplot as plt
 ################################# Constants ###################################
 BATCH_SIZE = 64
 EPOCHS = 10
@@ -19,10 +20,12 @@ class CBIONN(nn.Module):
         self.input_size = input_size
         self.num_classes = num_classes
         self.dropout = dropout
-        self.fc1 = nn.Linear(self.input_size, 512)
-        self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, self.num_classes)
+        self.fc1 = nn.Linear(self.input_size, 2048)
+        self.fc2 = nn.Linear(2048, 1024)
+        self.fc3 = nn.Linear(1024, 512)
+        self.fc4 = nn.Linear(512, 256)
+        self.fc5 = nn.Linear(256, 128)
+        self.fc6 = nn.Linear(128, self.num_classes)
         self.relu = nn.ReLU()
         self.dropout02 = nn.Dropout(0.2)
         self.dropout03 = nn.Dropout(0.3)
@@ -50,6 +53,12 @@ class CBIONN(nn.Module):
             x = self.dropout05(x)
 
         x = self.fc4(x)
+        x = self.relu(x)
+
+        x = self.fc5(x)
+        x = self.relu(x)
+
+        x = self.fc6(x)
 
         return x
 
@@ -100,6 +109,8 @@ class CBIONN(nn.Module):
 
         self.train()
 
+        losses = []
+
         for epoch in range(epochs):
             running_loss = 0.0
             for inputs, labels in train_loader:
@@ -111,6 +122,9 @@ class CBIONN(nn.Module):
                 running_loss += loss.item()
 
             print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader):.4f}")
+            losses.append(running_loss / len(train_loader))
+
+        # plot_losses(losses)
 
 class CBIOCNN(nn.Module):
     def __init__(self, input_dim, num_classes):
@@ -238,3 +252,30 @@ class CBIOCNN(nn.Module):
                 running_loss += loss.item()
 
             print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader):.4f}")
+
+def plot_losses(losses, save=False, show=True, save_path='loss_plot.png'):
+    """
+    Plots the training loss as a function of epochs.
+
+    Parameters:
+    - losses: List of loss values for each epoch.
+    - save: Boolean flag to save the plot to a file.
+    - show: Boolean flag to display the plot.
+    - save_path: File path to save the plot if save is True.
+
+    Returns:
+    - None
+    """
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(1, len(losses) + 1), losses, marker='o', linestyle='-', color='b')
+    plt.title('Training Loss as a Function of Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.grid(True)
+
+    if save:
+        plt.savefig(save_path)
+        print(f"Plot saved to {save_path}")
+
+    if show:
+        plt.show()
