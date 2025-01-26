@@ -82,7 +82,7 @@ class KNNClassifier(Model):
 
         # Perform majority voting
         predictions = np.array([
-            np.bincount(neighbor_labels[i]).argmax()
+            np.bincount(neighbor_labels[i].astype(int)).argmax()
             for i in range(len(X))
         ])
 

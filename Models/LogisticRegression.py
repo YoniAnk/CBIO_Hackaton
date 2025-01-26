@@ -101,7 +101,7 @@ class LogisticRegression(Model):
         else:
             # Convert y_batch to one-hot encoding
             y_one_hot = np.zeros((m, self.n_classes))
-            y_one_hot[np.arange(m), y_batch] = 1
+            y_one_hot[np.arange(m), y_batch.astype(int)] = 1
 
             error = y_pred - y_one_hot
             dw = (1 / m) * np.dot(X_batch.T, error) + (self.lambda_reg * self.weights)
