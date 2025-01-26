@@ -179,7 +179,6 @@ class CBIOCNN(nn.Module):
         x = torch.tensor(X, dtype=torch.float32).to(DEVICE)
 
         with torch.no_grad():
-            x = x.unsqueeze(1)  # Add channel dimension
             outputs = self.forward(x)
             outputs = self.softmax(outputs)
             _, y_pred = torch.max(outputs, 1)
@@ -199,7 +198,7 @@ class CBIOCNN(nn.Module):
         with open(path_to_save, 'wb') as f:
             pickle.dump(self, f)
 
-    def train_model(self, X: np.array, y: np.array, batch_size=64, epochs=10, lr=0.001, optimizer_type="adam") -> None:
+    def train_model(self, X: np.array, y: np.array, batch_size=64, epochs=10, lr=0.001) -> None:
         """
         Trains the CNN.
 
@@ -216,12 +215,8 @@ class CBIOCNN(nn.Module):
         """
         criterion = nn.CrossEntropyLoss()
 
-        if optimizer_type.lower() == "adam":
-            optimizer = optim.Adam(self.parameters(), lr=lr)
-        elif optimizer_type.lower() == "sgd":
-            optimizer = optim.SGD(self.parameters(), lr=lr, momentum=0.9)
-        else:
-            raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
+
+        optimizer = optim.Adam(self.parameters(), lr=lr)
 
         # Convert data to PyTorch tensors
         X_tensor = torch.tensor(X, dtype=torch.float32).to(DEVICE)
@@ -236,7 +231,6 @@ class CBIOCNN(nn.Module):
             running_loss = 0.0
             for inputs, labels in train_loader:
                 optimizer.zero_grad()
-                inputs = inputs.unsqueeze(1)  # Add channel dimension
                 outputs = self.forward(inputs)
                 loss = criterion(outputs, labels)
                 loss.backward()
