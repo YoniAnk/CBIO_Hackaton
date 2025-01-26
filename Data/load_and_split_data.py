@@ -49,3 +49,20 @@ def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1
     test_data = np.column_stack((x_test, y_test))
 
     return train_data, val_data, test_data
+
+
+def split_xy(xy_data):
+    """
+    Split a combined dataset into RNA-seq data (X) and labels (Y).
+
+    Args:
+        xy_data (np.ndarray): Combined dataset with RNA-seq data and labels.
+
+    Returns:
+        tuple: A tuple containing:
+            - x_data: RNA-seq data (all columns except the last).
+            - y_data: Labels (last column).
+    """
+    x_data = xy_data[:, :-1]  # All columns except the last
+    y_data = xy_data[:, -1]  # Only the last column
+    return x_data, y_data
