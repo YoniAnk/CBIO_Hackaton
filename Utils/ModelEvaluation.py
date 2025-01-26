@@ -24,8 +24,8 @@ class ModelEvaluator:
             X: Feature data for evaluation
             y: True labels for evaluation
         """
-        if not isinstance(model, Model):
-            raise TypeError("Model must be an instance of the Model abstract base class")
+        # if not isinstance(model, Model):
+        #     raise TypeError("Model must be an instance of the Model abstract base class")
 
         self.model = model
         self.X = X
@@ -42,15 +42,11 @@ class ModelEvaluator:
     def calculate_class_metrics(self) -> Dict[str, Dict[str, float]]:
         """
         Calculate classification metrics for each class including precision, recall, and F1 score.
-
         Returns:
             Dictionary containing calculated metrics for each class
         """
         # Calculate confusion matrix
-        print('#####################################')
         cm = confusion_matrix(self.y_true, self.y_pred)
-        print(cm)
-        print('#####################################')
 
         # Initialize metrics dictionary for each class
         class_metrics = {}
@@ -86,38 +82,40 @@ class ModelEvaluator:
 
         return class_metrics
 
-    def plot_confusion_matrix(self, figsize: Tuple[int, int] = (10, 8),
-                              normalize: bool = False) -> None:
+    def plot_confusion_matrix(self, model_name:str = "",  figsize: Tuple[int, int] = (10, 8)) -> None:
         """
-        Create a visually appealing confusion matrix heatmap for multiple classes.
+        Create a confusion matrix heatmap showing both normalized and original values.
 
         Args:
             figsize: Figure size (width, height)
-            normalize: If True, normalize confusion matrix by row
         """
         plt.figure(figsize=figsize)
 
         # Calculate confusion matrix
         cm = confusion_matrix(self.y_true, self.y_pred)
 
-        # Normalize if requested
-        if normalize:
-            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-            fmt = '.2f'
-        else:
-            fmt = 'd'
+        # Calculate normalized values
+        cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-        # Create heatmap with improved styling
+        # Create annotations with both values
+        annot = np.empty_like(cm, dtype=object)
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                annot[i, j] = f'{cm_norm[i, j]:.2f}\n({cm[i, j]})'
+
+        # Create heatmap using normalized values for colors
         sns.heatmap(
-            cm,
-            annot=True,
-            fmt=fmt,
+            cm_norm,
+            annot=annot,
+            fmt='',
             cmap='Blues',
             xticklabels=[f'Class {c}' for c in self.classes],
-            yticklabels=[f'Class {c}' for c in self.classes]
+            yticklabels=[f'Class {c}' for c in self.classes],
+            vmin=0,
+            vmax=1
         )
 
-        plt.title('Confusion Matrix' + (' (Normalized)' if normalize else ''), pad=20)
+        plt.title(f'{model_name} Confusion Matrix', pad=20)
         plt.xlabel('Predicted Label')
         plt.ylabel('True Label')
         plt.show()
@@ -152,7 +150,8 @@ class ModelEvaluator:
         plt.tight_layout()
         plt.show()
 
-    def generate_evaluation_report(self, normalize_cm: bool = False) -> None:
+    def generate_evaluation_report(self, normalize_cm: bool = False,
+                                   model_name: str = "") -> None:
         """
         Generate a comprehensive evaluation report including per-class metrics and visualizations.
 
@@ -180,7 +179,7 @@ class ModelEvaluator:
 
         # Confusion Matrix
         print("\nConfusion Matrix:")
-        self.plot_confusion_matrix(normalize=normalize_cm)
+        self.plot_confusion_matrix(model_name=model_name)
 
         # Class Metrics Comparison
         print("\nClass Metrics Comparison:")
