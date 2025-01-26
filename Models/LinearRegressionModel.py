@@ -2,51 +2,45 @@ import numpy as np
 import pickle
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
+from Models.AbstractModel import Model
 
-class LinearRegressionModel:
+class LinearRegressionModel(Model):
     def __init__(self):
         self.model = None
         self.scaler = StandardScaler()
     
-    def train(self, X, y, prev_model=None):
+    def train_model(self, X, y, prev_model=None):
         """
         Train the linear regression model
-        
-        Parameters:
-        X (np.array): Input features
-        y (np.array): Target values
-        prev_model (optional): Previous model to continue training
         """
-        # Standardize the features
         X_scaled = self.scaler.fit_transform(X)
-        
-        # If prev_model is provided, use it; otherwise create a new model
+
         if prev_model is not None:
             self.model = prev_model
         else:
             self.model = LinearRegression()
-        
-        # Fit the model
+
         self.model.fit(X_scaled, y)
-    
+       
     def predict(self, X):
         """
-        Make predictions using the trained model
-        
-        Parameters:
-        X (np.array): Input features for prediction
-        
-        Returns:
-        np.array: Predicted values
+        Make predictions using the trained model, ensuring output is rounded to {0, 1, 2}.
         """
         if self.model is None:
             raise ValueError("Model has not been trained yet")
-        
-        # Standardize the input features
+
         X_scaled = self.scaler.transform(X)
-        
-        # Make predictions
-        return self.model.predict(X_scaled)
+        predictions = self.model.predict(X_scaled)
+
+        # Ensure predictions are in range {0, 1}
+        predictions = np.clip(predictions, 0, 1)
+
+        # Round predictions to nearest valid label
+        possible_labels = np.array([0, 1])
+        predictions = possible_labels[
+            np.abs(predictions[:, None] - possible_labels).argmin(axis=1)]
+
+        return predictions
     
     def saveModel(self, path_to_save):
         """
@@ -89,19 +83,5 @@ class LinearRegressionModel:
         
         return instance
     
-
-
-# Create model
-model = LinearRegressionModel()
-
-# Train the model
-model.train(X_train, y_train)
-
-# Make predictions
-predictions = model.predict(X_test)
-
-# Save the model
-model.saveModel('my_linear_regression_model.pkl')
-
-# Load the model later
-loaded_model = LinearRegressionModel.loadModel('my_linear_regression_model.pkl')
+    def get_weights(self):
+        return self.model.coef_, self.model.intercept_
