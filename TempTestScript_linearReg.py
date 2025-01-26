@@ -12,7 +12,7 @@ from Models.KNNClassifier import KNNClassifier
 from Models.LogisticRegression import LogisticRegression
 from Utils.ModelEvaluation import ModelEvaluator
 from Data.load_and_split_data import load_and_split_tsv
-from Models.RandomForestModel import MLModel
+from Models.LinearRegressionModel import LinearRegressionModel
 
 def generate_synthetic_data(n_samples=1000, n_classes=3, n_features=10):
     """
@@ -78,8 +78,8 @@ def main():
     X_test_scaled = scaler.transform(X_test)
 
     # Initialize models
-    model_name = "RandomForest"
-    models =  MLModel(task='classification')
+    model_name = "LinearRegression"
+    models =  LinearRegressionModel()
         # 'CBIONN': CBIONN(
         #     input_size=n_features,
         #     num_classes=n_classes,
@@ -90,11 +90,6 @@ def main():
         #     num_classes=n_classes
         # )
     # }
-    models.set_params(
-        n_estimators=200, 
-        max_depth=7, 
-        min_samples_split=5
-    )
     # Train and evaluate each model
     evaluation_results = {}
 
