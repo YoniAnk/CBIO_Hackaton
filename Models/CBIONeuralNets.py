@@ -1,16 +1,16 @@
 ################################# Imports #####################################
 import numpy as np
 import torch
-
-DEVICE = "cpu" if not torch.cuda.is_available() else "cuda"
 import torch.nn as nn
 import torch.optim as optim
 import pickle
+import tqdm as tqdm
 ################################# Constants ###################################
 BATCH_SIZE = 64
 EPOCHS = 10
 LEARNING_RATE = 0.001
 WEIGHT_DECAY = 0.0001
+DEVICE = "cpu" if not torch.cuda.is_available() else "cuda"
 ################################# Classes #####################################
 
 class CBIONN(nn.Module):
@@ -93,7 +93,7 @@ class CBIONN(nn.Module):
 
         # Convert data to PyTorch tensors
         X_tensor = torch.tensor(X, dtype=torch.float32).to(DEVICE)
-        y_tensor = torch.tensor(y, dtype=torch.int8).squeeze().to(DEVICE)
+        y_tensor = torch.tensor(y, dtype=torch.long).squeeze().to(DEVICE)
 
         dataset = torch.utils.data.TensorDataset(X_tensor, y_tensor)
         train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
