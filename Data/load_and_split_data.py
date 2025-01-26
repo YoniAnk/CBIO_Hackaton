@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1):
+def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_state=42):
     """
     Load a TSV file, process RNA-seq data and labels, and split it into train, validation, and test sets
     while maintaining the original label ratios.
@@ -30,7 +30,7 @@ def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1
         x_data,
         y_data,
         test_size=(1 - train_ratio),
-        random_state=42,
+        random_state=random_state,
         stratify=y_data  # Maintain label ratio
     )
 
@@ -39,7 +39,7 @@ def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1
         x_temp,
         y_temp,
         test_size=test_ratio / (test_ratio + val_ratio),  # Adjust split ratio for remaining data
-        random_state=42,
+        random_state=random_state,
         stratify=y_temp  # Maintain label ratio
     )
 
