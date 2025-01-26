@@ -2,9 +2,10 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 import pickle
 from typing import Optional, Union
+from Models.AbstractModel import Model
 
 
-class KNNClassifier:
+class KNNClassifier(Model):
     """
     A K-Nearest Neighbors classifier implementation using scikit-learn's NearestNeighbors as the backend.
     This implementation supports incremental learning through the prev_model parameter.

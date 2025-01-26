@@ -2,9 +2,10 @@ import numpy as np
 from scipy.special import softmax
 import pickle
 from typing import Optional, Tuple
+from Models.AbstractModel import Model
 
 
-class LogisticRegression:
+class LogisticRegression(Model):
     """
     A Logistic Regression classifier implementation supporting both binary and multiclass classification.
     Uses gradient descent optimization with optional L2 regularization.
