@@ -1,8 +1,9 @@
 import numpy as np
 import pickle
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from Models.AbstractModel import Model
 
-class MLModel:
+class MLModel(Model):
     def __init__(self, task='classification'):
         """
         Initialize the model with configurable parameters
@@ -17,7 +18,7 @@ class MLModel:
             'random_state': 42,
             'min_samples_split': 2,
             'min_samples_leaf': 1,
-            'max_features': 'auto'
+            'max_features': 'sqrt'  # Updated from 'auto' to 'sqrt'
         }
         
         self.task = task
@@ -32,7 +33,7 @@ class MLModel:
         """
         self.params.update(kwargs)
     
-    def train(self, X, y, prev_model=None):
+    def train_model(self, X, y, prev_model=None):
         """
         Train the model
         
@@ -94,26 +95,20 @@ class MLModel:
         with open(path_to_save, 'wb') as f:
             pickle.dump(self.model, f)
 
-# Example usage
-def main():
-    # Create a Random Forest Classifier
-    rf_clf = MLModel(task='classification')
-    
-    # Customize parameters
-    rf_clf.set_params(
-        n_estimators=200, 
-        max_depth=7, 
-        min_samples_split=5
-    )
-    
-    # Create a Random Forest Regressor
-    rf_reg = MLModel(task='regression')
-    
-    # Customize parameters
-    rf_reg.set_params(
-        max_features='sqrt', 
-        min_samples_leaf=3
-    )
+    @classmethod
+    def loadModel(cls, path_to_load: str) -> 'MLModel':
+        """
+        Load a model from a file.
 
-if __name__ == "__main__":
-    main()
+        Args:
+            path_to_load: Path to the saved model file
+
+        Returns:
+            Loaded model instance
+        """
+        with open(path_to_load, 'rb') as f:
+            loaded_model = pickle.load(f)
+        
+        instance = cls()
+        instance.model = loaded_model
+        return instance
