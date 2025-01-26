@@ -6,6 +6,7 @@ from sklearn.datasets import make_classification
 import matplotlib.pyplot as plt
 import time
 from Data.load_and_split_data import load_and_split_tsv, split_xy
+from Models.CBIONeuralNets import CBIONN, CBIOCNN
 
 # Import our custom models
 from Models.KNNClassifier import KNNClassifier
@@ -53,24 +54,38 @@ def main():
     # torch.manual_seed(42)
 
     train_data, val_data, test_data = load_and_split_tsv(
-        "./Data/rna_seq_with_012_labels.tsv", random_state=np.random.seed())
-
-    # Initialize models
-    models = {
-        'KNN': KNNClassifier(n_neighbors=5, p=2),
-        'LogisticRegression': LogisticRegression(
-            learning_rate=0.01,
-            n_iterations=1000,
-            batch_size=32,
-            lambda_reg=0.01)
-    }
-
-    # Train and evaluate each model
-    evaluation_results = {}
+        "./Data/rna_seq_only_sick_with_labels.tsv", random_state=np.random.seed())
 
     train_X, train_Y = split_xy(train_data)
     val_X, val_Y = split_xy(val_data)
     test_X, test_Y = split_xy(test_data)
+
+    n_features = train_X.shape[1]
+    n_classes = len(np.unique(train_Y))
+
+    # Initialize models
+    models = {
+        # 'KNN': KNNClassifier(n_neighbors=5),
+        'LogisticRegression': LogisticRegression(
+            learning_rate=0.01,
+            n_iterations=1000,
+            batch_size=64,
+            lambda_reg=0.1
+        )
+        ,
+        # 'CBIONN': CBIONN(
+        #     input_size=n_features,
+        #     num_classes=n_classes,
+        #     dropout=True
+        # ),
+        # 'CBIOCNN': CBIOCNN(
+        #     input_dim=n_features,
+        #     num_classes=n_classes
+        # )
+    }
+
+    # Train and evaluate each model
+    evaluation_results = {}
 
     for model_name, model in models.items():
         print(f"\nTraining {model_name}...")

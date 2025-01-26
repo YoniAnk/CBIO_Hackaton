@@ -183,7 +183,7 @@ class ModelEvaluator:
 
         # Class Metrics Comparison
         print("\nClass Metrics Comparison:")
-        self.plot_class_metrics()
+        # self.plot_class_metrics()
 
         # Print sklearn classification report for additional metrics
         print("\nDetailed Classification Report:")

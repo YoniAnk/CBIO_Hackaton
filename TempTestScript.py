@@ -142,7 +142,7 @@ def main():
 
 def main_real_data():
     # Load the real RNA-seq data
-    train_data, val_data, test_data = lsd.load_and_split_tsv("Data/rna_seq_with_012_labels.tsv")
+    train_data, val_data, test_data = lsd.load_and_split_tsv("./Data/rna_seq_only_sick_with_labels.tsv")
     X_train, y_train = lsd.split_xy(train_data)
     X_val, y_val = lsd.split_xy(val_data)
     X_test, y_test = lsd.split_xy(test_data)
