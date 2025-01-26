@@ -122,34 +122,34 @@ class ModelEvaluator:
         plt.ylabel('True Label')
         plt.show()
 
-    def plot_class_metrics(self, figsize: Tuple[int, int] = (12, 6)) -> None:
-        """
-        Create a grouped bar plot comparing different metrics across classes.
-
-        Args:
-            figsize: Figure size (width, height)
-        """
-        # Calculate metrics for each class
+    def plot_class_metrics(self, figsize: Tuple[int, int] = (8, 5)) -> None:
         class_metrics = self.calculate_class_metrics()
-
-        # Prepare data for plotting
         metrics_to_plot = ['Precision', 'Recall', 'F1 Score']
+
+        values_by_metric = {metric: [class_metrics[f'Class {c}'][metric]
+                                     for c in self.classes]
+                            for metric in metrics_to_plot}
+
+        min_val = min(min(vals) for vals in values_by_metric.values())
+        max_val = max(max(vals) for vals in values_by_metric.values())
+        y_margin = (max_val - min_val) * 0.1
+
+        fig, ax = plt.subplots(figsize=figsize)
         x = np.arange(len(self.classes))
         width = 0.25
 
-        plt.figure(figsize=figsize)
+        for i, (metric, values) in enumerate(values_by_metric.items()):
+            ax.bar(x + i * width, values, width, label=metric, alpha=0.8)
 
-        # Plot bars for each metric
-        for i, metric in enumerate(metrics_to_plot):
-            values = [class_metrics[f'Class {c}'][metric] for c in self.classes]
-            plt.bar(x + i * width, values, width, label=metric)
+        ax.set_ylim(max(0, min_val - y_margin), min(1, max_val + y_margin))
+        ax.set_xlabel('Classes')
+        ax.set_ylabel('Score')
+        ax.set_xticks(x + width)
+        ax.set_xticklabels([f'Class {c}' for c in self.classes])
 
-        plt.xlabel('Classes')
-        plt.ylabel('Score')
-        plt.title('Performance Metrics by Class')
-        plt.xticks(x + width, [f'Class {c}' for c in self.classes])
-        plt.legend()
-        plt.grid(True, axis='y')
+        ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left')
+        ax.grid(True, alpha=0.3)
+        plt.tight_layout()
         plt.show()
 
     def generate_evaluation_report(self, normalize_cm: bool = False) -> None:
