@@ -124,7 +124,7 @@ class CBIONN(nn.Module):
             print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader):.4f}")
             losses.append(running_loss / len(train_loader))
 
-        # plot_losses(losses)
+        plot_losses(losses)
 
 class CBIOCNN(nn.Module):
     def __init__(self, input_dim, num_classes):
