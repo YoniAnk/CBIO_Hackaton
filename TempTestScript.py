@@ -41,7 +41,7 @@ def evaluate_model(model, model_name: str, X_test: np.ndarray, y_test: np.ndarra
 
     # Generate comprehensive evaluation report
     print(f"\nPerformance Metrics for {model_name}:")
-    evaluator.generate_evaluation_report()
+    evaluator.generate_evaluation_report(model_name=model_name)
 
     return evaluator
 

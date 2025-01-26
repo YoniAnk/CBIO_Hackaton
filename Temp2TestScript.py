@@ -49,16 +49,15 @@ def evaluate_model(model, model_name: str, X_test: np.ndarray, y_test: np.ndarra
 
 def main():
     # Set random seeds for reproducibility
-    np.random.seed(42)
+    np.random.seed()
     # torch.manual_seed(42)
 
     train_data, val_data, test_data = load_and_split_tsv(
-        "./Data/rna_seq_with_012_labels.tsv"
-    )
+        "./Data/rna_seq_with_012_labels.tsv", random_state=np.random.seed())
 
     # Initialize models
     models = {
-        'KNN': KNNClassifier(n_neighbors=5),
+        'KNN': KNNClassifier(n_neighbors=5, p=2),
         'LogisticRegression': LogisticRegression(
             learning_rate=0.01,
             n_iterations=1000,
