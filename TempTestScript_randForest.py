@@ -62,7 +62,7 @@ def main():
     #     n_classes=n_classes,
     #     n_features=n_features
     # )
-    train_data, val_data, test_data = load_and_split_tsv("rna_seq_with_012_labels.tsv")
+    train_data, val_data, test_data = load_and_split_tsv("rna_seq_with_012_labels.tsv", random_state=42)
 
     # Split the data
     # X_train, X_test, y_train, y_test = train_test_split(

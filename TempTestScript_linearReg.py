@@ -62,7 +62,7 @@ def main():
     #     n_classes=n_classes,
     #     n_features=n_features
     # )
-    train_data, val_data, test_data = load_and_split_tsv("rna_seq_with_012_labels.tsv")
+    train_data, val_data, test_data = load_and_split_tsv("rna_seq_with_012_labels.tsv", random_state= 42)
 
     # Split the data
     # X_train, X_test, y_train, y_test = train_test_split(
@@ -126,6 +126,8 @@ def main():
         print(f"\n{model_name}:")
         print(f"Average F1 Score: {avg_f1:.3f}")
         print(f"Average Accuracy: {avg_accuracy:.3f}")
+
+        print("weight : " , models.get_weights())
 
 
 if __name__ == "__main__":
