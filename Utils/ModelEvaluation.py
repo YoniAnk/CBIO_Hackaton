@@ -24,8 +24,8 @@ class ModelEvaluator:
             X: Feature data for evaluation
             y: True labels for evaluation
         """
-        if not isinstance(model, Model):
-            raise TypeError("Model must be an instance of the Model abstract base class")
+        # if not isinstance(model, Model):
+        #     raise TypeError("Model must be an instance of the Model abstract base class")
 
         self.model = model
         self.X = X
@@ -42,7 +42,6 @@ class ModelEvaluator:
     def calculate_class_metrics(self) -> Dict[str, Dict[str, float]]:
         """
         Calculate classification metrics for each class including precision, recall, and F1 score.
-
         Returns:
             Dictionary containing calculated metrics for each class
         """
