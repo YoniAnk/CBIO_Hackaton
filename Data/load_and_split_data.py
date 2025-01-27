@@ -1,5 +1,7 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
+
 
 def load_and_split_tsv(file_path, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, random_state=42):
     """
@@ -66,3 +68,59 @@ def split_xy(xy_data):
     x_data = xy_data[:, :-1]  # All columns except the last
     y_data = xy_data[:, -1]  # Only the last column
     return x_data, y_data
+
+
+def balance_dataset(data, type="over"):
+    """
+    Balance the dataset by either oversampling the minority class or undersampling the majority class.
+
+    Args:
+        data (np.ndarray): Combined dataset with features and labels.
+        type (str): Type of balancing to perform. "over" for oversampling, "under" for undersampling.
+
+    Returns:
+        np.ndarray: Balanced dataset with features and labels.
+    """
+    # Split the data into features and labels
+    X = data[:, :-1]
+    y = data[:, -1]
+
+    # Find the unique classes and their counts
+    unique_classes, class_counts = np.unique(y, return_counts=True)
+
+    # Determine the target count for balancing
+    if type == "over":
+        target_count = max(class_counts)
+    elif type == "under":
+        target_count = min(class_counts)
+    else:
+        raise ValueError("Type must be either 'over' or 'under'")
+
+    # Initialize lists to hold the balanced data
+    balanced_X = []
+    balanced_y = []
+
+    # Resample each class to the target count
+    for cls in unique_classes:
+        cls_indices = np.where(y == cls)[0]
+        cls_X = X[cls_indices]
+        cls_y = y[cls_indices]
+
+        if type == "over":
+            resampled_X, resampled_y = resample(cls_X, cls_y, replace=True, n_samples=target_count,
+                                                random_state=42)
+        elif type == "under":
+            resampled_X, resampled_y = resample(cls_X, cls_y, replace=False, n_samples=target_count,
+                                                random_state=42)
+
+        balanced_X.append(resampled_X)
+        balanced_y.append(resampled_y)
+
+    # Concatenate the balanced data
+    balanced_X = np.vstack(balanced_X)
+    balanced_y = np.hstack(balanced_y)
+
+    # Combine features and labels into a single dataset
+    balanced_data = np.column_stack((balanced_X, balanced_y))
+
+    return balanced_data
