@@ -16,24 +16,6 @@ from Models.LogisticRegression import LogisticRegression
 from Utils.ModelEvaluation import ModelEvaluator
 
 
-def generate_synthetic_data(n_samples=1000, n_classes=3, n_features=10):
-    """
-    Generate synthetic data for multi-class classification with clear class separation.
-    The number of features is set to 10 to provide enough information for our neural models.
-    """
-    X, y = make_classification(
-        n_samples=n_samples,
-        n_features=n_features,
-        n_informative=n_features - 2,
-        n_redundant=0,
-        n_classes=n_classes,
-        n_clusters_per_class=2,
-        class_sep=2.0,  # Increased class separation for clearer evaluation
-        random_state=42
-    )
-
-    return X, y
-
 
 def evaluate_model(model, model_name: str, X_test: np.ndarray, y_test: np.ndarray):
     """
@@ -50,49 +32,42 @@ def evaluate_model(model, model_name: str, X_test: np.ndarray, y_test: np.ndarra
 
 
 def main():
-    # Set random seeds for reproducibility
-    np.random.seed()
-    # torch.manual_seed(42)
+    np.random.seed(42)
 
     for file_path in ["./Data/rna_seq_with_012_labels.tsv",
-                      "./Data/rna_seq_only_sick_10_genes.tsv",
-                      "./Data/rna_seq_only_sick_50_genes.tsv",
-                      "./Data/rna_seq_only_sick_100_genes.tsv"
-    ]:
 
+                      ]:
 
-        train_data, val_data, test_data = load_and_split_tsv(
-            file_path, random_state=np.random.seed())
+        train_data, val_data, test_data = load_and_split_tsv(file_path)
 
-        for sampling_method in ["over", "under", "standard"]:
+        train_X, train_Y = split_xy(balance_dataset(train_data, "under"))
 
-            if sampling_method == "standard":
-                train_X, train_Y = split_xy(train_data)
-            else:
-                train_X, train_Y = split_xy(balance_dataset(train_data, sampling_method))
+        val_X, val_Y = split_xy(val_data)
+        test_X, test_Y = split_xy(test_data)
 
-            val_X, val_Y = split_xy(val_data)
-            test_X, test_Y = split_xy(test_data)
+        n_features = train_X.shape[1]
+        n_classes = len(np.unique(train_Y))
 
-            n_features = train_X.shape[1]
-            n_classes = len(np.unique(train_Y))
+        learning_rates = [0.001, 0.005 ,0.01, 0.05 ,0.1]
+        n_iterations = [500, 1000, 2000, 5000]
+        batch_sizes = [8 ,16 ,32, 64]
+        lambda_regs = [0.001, 0.005, 0.01, 0.05, 0.1]
 
-            # Initialize models
-            n_neighbors = 5
+        # List comprehension for all combinations
+        param_grid = [(lr, n_iter, bs, lam)
+                          for lr in learning_rates
+                          for n_iter in n_iterations
+                          for bs in batch_sizes
+                          for lam in lambda_regs]
 
-            learning_rate = 0.001
-            n_iteration = 1000
-            batch_size = 16
-            lambda_reg = 0.005
+        for (lr, n_iter, bs, lam) in param_grid:
 
             models = {
-                'KNN': KNNClassifier(n_neighbors=n_neighbors)
-                ,
                 'LogisticRegression': LogisticRegression(
-                    learning_rate=learning_rate,
-                    n_iterations=n_iteration,
-                    batch_size=batch_size,
-                    lambda_reg=lambda_reg
+                    learning_rate=lr,
+                    n_iterations=n_iter,
+                    batch_size=bs,
+                    lambda_reg=lam
                 )
             }
 
@@ -109,8 +84,8 @@ def main():
                 print(f"{model_name} training completed in {training_time:.2f} seconds")
 
                 # Evaluate the model
-                parameters = n_neighbors if model_name =='KNN' else (learning_rate, n_iteration, batch_size,lambda_reg)
-                title = f"\n{model_name} parameters: {parameters}, \ndata sampling: {sampling_method} using {file_path}"
+                parameters = (lr, n_iter, bs, lam)
+                title = f"\n{model_name} parameters: {parameters}, \ndata sampling: under using {file_path}"
                 evaluator = evaluate_model(model, title, test_X, test_Y)
                 evaluation_results[model_name] = evaluator
 
@@ -126,7 +101,7 @@ def main():
                 avg_accuracy = np.mean([class_metrics['Accuracy']
                                         for class_metrics in metrics.values()])
 
-                print(f"\n{model_name} , data sampling: {sampling_method}, parameters: {parameters}")
+                print(f"\n{model_name} , data sampling: under, parameters: {parameters}")
                 print(f"Average F1 Score: {avg_f1:.3f}")
                 print(f"Average Accuracy: {avg_accuracy:.3f}")
 
