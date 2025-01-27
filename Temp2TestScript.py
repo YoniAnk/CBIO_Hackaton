@@ -54,7 +54,7 @@ def main():
     # torch.manual_seed(42)
 
     train_data, val_data, test_data = load_and_split_tsv(
-        "./Data/rna_seq_only_sick_with_labels.tsv", random_state=np.random.seed())
+        "./Data/rna_seq_only_sick_50_genes.tsv", random_state=np.random.seed())
 
     train_X, train_Y = split_xy(train_data)
     val_X, val_Y = split_xy(val_data)
@@ -65,14 +65,15 @@ def main():
 
     # Initialize models
     models = {
-        # 'KNN': KNNClassifier(n_neighbors=5),
-        'LogisticRegression': LogisticRegression(
-            learning_rate=0.01,
-            n_iterations=1000,
-            batch_size=64,
-            lambda_reg=0.1
-        )
-        ,
+        'KNN': KNNClassifier(n_neighbors=4)
+        # ,
+        # 'LogisticRegression': LogisticRegression(
+        #     learning_rate=0.0001,
+        #     n_iterations=10000,
+        #     batch_size=16,
+        #     lambda_reg=0.00001
+        # )
+        # ,
         # 'CBIONN': CBIONN(
         #     input_size=n_features,
         #     num_classes=n_classes,
